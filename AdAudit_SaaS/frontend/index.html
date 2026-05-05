@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Omnichannel Master Dashboard</title>
+
+  <!-- React & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <!-- Babel for JSX compilation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #040b16;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --card-bg: rgba(30, 64, 120, 0.1);
+      --border-color: rgba(100, 150, 255, 0.15);
+
+      --red-neon: #ff4757;
+      --yellow-neon: #ffea00;
+      --green-neon: #2ed573;
+
+      --primary: #00c6ff;
+      --primary-hover: #0099cc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #020612 0%, #0f254f 100%);
+      color: var(--text-color);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #e0e0e0, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      font-weight: 300;
+    }
+
+    /* Glassmorphism Containers */
+    .glass-panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      animation: fadeIn 1s ease-out;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .glass-panel.narrow {
+      max-width: 500px;
+    }
+
+    .glass-panel h2 {
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+    }
+
+    .btn {
+      padding: 0.85rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      background-color: var(--primary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-action {
+      background-color: var(--primary);
+      color: #000;
+      font-weight: 700;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+    }
+
+    .btn-action:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 6px 20px rgba(0, 198, 255, 0.5);
+      color: #000;
+    }
+
+    /* Form styling */
+    select,
+    input {
+      width: 100%;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-family: 'Outfit', sans-serif;
+      outline: none;
+      margin-bottom: 1rem;
+    }
+
+    select:focus,
+    input:focus {
+      border-color: var(--primary);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      text-align: left;
+    }
+
+    .form-section {
+      background: rgba(255, 255, 255, 0.02);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .form-section h3 {
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 2rem;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content {
+      background: #0f1015;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.5rem;
+      max-width: 900px;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+      margin: auto;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: 2rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close-btn:hover {
+      color: white;
+    }
+
+    /* Summary UI */
+    .summary-section {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    .summary-card {
+      flex: 1;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    .summary-card h3 {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .summary-card .value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    /* Dashboard UI */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .icon-wrapper {
+      width: 45px;
+      height: 45px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    /* Neon Accents */
+    .card.red {
+      border-top: 2px solid var(--red-neon);
+      box-shadow: 0 0 20px rgba(255, 42, 42, 0.05);
+    }
+
+    .card.red:hover {
+      box-shadow: 0 0 30px rgba(255, 42, 42, 0.15);
+    }
+
+    .card.red .icon-wrapper {
+      color: var(--red-neon);
+      box-shadow: inset 0 0 10px rgba(255, 42, 42, 0.2);
+    }
+
+    .card.yellow {
+      border-top: 2px solid var(--yellow-neon);
+      box-shadow: 0 0 20px rgba(255, 234, 0, 0.05);
+    }
+
+    .card.yellow:hover {
+      box-shadow: 0 0 30px rgba(255, 234, 0, 0.1);
+    }
+
+    .card.yellow .icon-wrapper {
+      color: var(--yellow-neon);
+      box-shadow: inset 0 0 10px rgba(255, 234, 0, 0.2);
+    }
+
+    .card.green {
+      border-top: 2px solid var(--green-neon);
+      box-shadow: 0 0 20px rgba(0, 255, 102, 0.05);
+    }
+
+    .card.green:hover {
+      box-shadow: 0 0 30px rgba(0, 255, 102, 0.1);
+    }
+
+    .card.green .icon-wrapper {
+      color: var(--green-neon);
+      box-shadow: inset 0 0 10px rgba(0, 255, 102, 0.2);
+    }
+
+    .insight-item {
+      margin-bottom: 1.5rem;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .insight-item h3 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+      color: white;
+    }
+
+    .insight-item p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .tip {
+      margin-top: 0.8rem;
+      font-size: 0.9rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 2px solid;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .loader {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top: 3px solid white;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const API_BASE = "http://localhost:8000/api";
+
+    function AdminFormModal({ onClose, onAuditGenerated }) {
+      const [loading, setLoading] = useState(false);
+      const [formData, setFormData] = useState({
+        client_name: "",
+        meta_spend: "",
+        meta_roas: "",
+        meta_leads: "",
+        meta_frequency: "",
+        meta_hook_rate: "",
+        google_spend: "",
+        google_roas: "",
+        google_leads: "",
+        google_imp_share: ""
+      });
+
+      const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        const payload = {
+          client_name: formData.client_name,
+          meta: {
+            spend: parseFloat(formData.meta_spend) || 0,
+            roas: parseFloat(formData.meta_roas) || 0,
+            leads: parseInt(formData.meta_leads) || 0,
+            frequency: formData.meta_frequency ? parseFloat(formData.meta_frequency) : null,
+            hook_rate: formData.meta_hook_rate ? parseFloat(formData.meta_hook_rate) : null
+          },
+          google: {
+            spend: parseFloat(formData.google_spend) || 0,
+            roas: parseFloat(formData.google_roas) || 0,
+            leads: parseInt(formData.google_leads) || 0,
+            impression_share: formData.google_imp_share ? parseFloat(formData.google_imp_share) : null
+          }
+        };
+
+        try {
+          const res = await fetch(`${API_BASE}/omnichannel-audit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error("API failed");
+          const json = await res.json();
+          onAuditGenerated(formData.client_name, json.data);
+        } catch (err) {
+          alert("Failed to submit to backend. Ensure FastAPI server is running.");
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+          <div className="modal-content">
+            <span className="close-btn" onClick={onClose}>&times;</span>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
+              <img src="logo.webp" alt="Logo" style={{ height: '35px', objectFit: 'contain', marginRight: '1rem' }} />
+              <h2 style={{ margin: 0 }}>New Client Audit</h2>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="form-group" style={{ marginBottom: '2rem' }}>
+                <label style={{ color: 'white', fontSize: '1rem' }}>Client Name</label>
+                <input type="text" name="client_name" value={formData.client_name} onChange={handleChange} required placeholder="e.g. Apex Shoes" style={{ background: 'rgba(255,255,255,0.05)' }} />
+              </div>
+
+              <div className="form-row">
+                <div className="form-section">
+                  <h3>Meta Ads</h3>
+                  <div className="form-group">
+                    <label>Total Spend ($)</label>
+                    <input type="number" step="0.01" name="meta_spend" value={formData.meta_spend} onChange={handleChange} required />
+                  </div>
+                  <div className="form-group">
+                    <label>Average ROAS</label>
+                    <input type="number" step="0.1" name="meta_roas" value={formData.meta_roas} onChange={handleChange} required />
+                  </div>
+                  <div className="form-group">
+                    <label>Total Conversions</label>
+                    <input type="number" name="meta_leads" value={formData.meta_leads} onChange={handleChange} required />
+                  </div>
+                  <div className="form-group">
+                    <label>Frequency (Optional)</label>
+                    <input type="number" step="0.1" name="meta_frequency" value={formData.meta_frequency} onChange={handleChange} placeholder="e.g. 4.5" />
+                  </div>
+                  <div className="form-group">
+                    <label>Hook Rate % (Optional)</label>
+                    <input type="number" step="0.1" name="meta_hook_rate" value={formData.meta_hook_rate} onChange={handleChange} placeholder="e.g. 20" />
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h3>Google Ads</h3>
+                  <div className="form-group">
+                    <label>Total Spend ($)</label>
+                    <input type="number" step="0.01" name="google_spend" value={formData.google_spend} onChange={handleChange} required />
+                  </div>
+                  <div className="form-group">
+                    <label>Average ROAS</label>
+                    <input type="number" step="0.1" name="google_roas" value={formData.google_roas} onChange={handleChange} required />
+                  </div>
+                  <div className="form-group">
+                    <label>Total Conversions</label>
+                    <input type="number" name="google_leads" value={formData.google_leads} onChange={handleChange} required />
+                  </div>
+                  <div className="form-group">
+                    <label>Search Impression Share % (Optional)</label>
+                    <input type="number" step="0.1" name="google_imp_share" value={formData.google_imp_share} onChange={handleChange} placeholder="e.g. 30" />
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'right' }}>
+                <button type="button" className="btn" onClick={onClose} style={{ background: 'transparent', width: 'auto', marginRight: '1rem' }}>Cancel</button>
+                <button type="submit" className="btn btn-action" disabled={loading} style={{ width: '200px' }}>
+                  {loading ? <span className="loader"></span> : 'Save & Generate'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )
+    }
+
+    function LandingPage({ onSelectClient, onNewAudit, accounts, loadingAccounts }) {
+      if (loadingAccounts) {
+        return <div style={{ textAlign: 'center', marginTop: '10rem' }}><span className="loader" style={{ width: '50px', height: '50px', borderWidth: '4px' }}></span></div>;
+      }
+
+      if (!accounts || accounts.length === 0) {
+        return (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '60vh',
+            textAlign: 'center'
+          }}>
+            <h2 style={{ fontSize: '3rem', marginBottom: '1rem' }}>Welcome Manish!</h2>
+            <p className="subtitle" style={{ marginBottom: '3rem', fontSize: '1.2rem' }}>Start by adding your first client audit.</p>
+
+            <button onClick={onNewAudit} style={{
+              padding: '1.2rem 3rem',
+              fontSize: '1.2rem',
+              fontWeight: 'bold',
+              color: 'white',
+              background: 'linear-gradient(135deg, #00c6ff, #0072ff)',
+              border: 'none',
+              borderRadius: '50px',
+              cursor: 'pointer',
+              boxShadow: '0 10px 30px rgba(0, 114, 255, 0.4)',
+              transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+            }}
+              onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 15px 40px rgba(0, 114, 255, 0.6)'; }}
+              onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 114, 255, 0.4)'; }}
+            >
+              + New Client Audit
+            </button>
+          </div>
+        );
+      }
+
+      return (
+        <div className="glass-panel narrow" style={{ marginTop: '4rem' }}>
+          <h2>Select Client</h2>
+          <p className="subtitle" style={{ marginBottom: '2rem' }}>Access previously generated audits.</p>
+
+          <select
+            defaultValue=""
+            onChange={(e) => onSelectClient(e.target.value)}
+            style={{ marginBottom: '2rem' }}
+          >
+            <option value="" disabled>-- Select Client from Database --</option>
+            {accounts.map(acc => (
+              <option key={acc.id} value={acc.name}>{acc.name}</option>
+            ))}
+          </select>
+
+          <hr style={{ borderColor: 'var(--border-color)', margin: '2rem 0' }} />
+
+          <button className="btn btn-action" onClick={onNewAudit} style={{ width: '100%' }}>
+            + New Client Audit
+          </button>
+        </div>
+      )
+    }
+
+    function Dashboard({ clientName, data, onBack }) {
+      const [generatingPdf, setGeneratingPdf] = useState(false);
+
+      const downloadPdf = async () => {
+        setGeneratingPdf(true);
+        try {
+          const res = await fetch(`${API_BASE}/generate-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ client_name: clientName, data: data })
+          });
+          if (!res.ok) throw new Error("API failed");
+
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `FullFunnel_Audit_${clientName.replace(/ /g, '_')}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        } catch (e) {
+          alert("PDF Generation requires the Python backend to be running!");
+        } finally {
+          setGeneratingPdf(false);
+        }
+      };
+
+      return (
+        <div>
+          <button className="btn" onClick={onBack} style={{ background: 'transparent', padding: '0', width: 'auto', marginBottom: '1rem', color: 'var(--primary)' }}>
+            ← Back to Clients
+          </button>
+
+          <div className="dashboard-header">
+            <div>
+              <h2>Omnichannel Audit: <span style={{ color: 'var(--primary)' }}>{clientName}</span></h2>
+              <p className="subtitle">Data loaded successfully from database.</p>
+            </div>
+            <button className="btn btn-action" onClick={downloadPdf} disabled={generatingPdf} style={{ margin: 0 }}>
+              {generatingPdf ? <span className="loader"></span> : 'Download Full-Funnel Report (PDF)'}
+            </button>
+          </div>
+
+          {/* UNIFIED VIEW SUMMARY */}
+          {data.summary && (
+            <div className="summary-section">
+              <div className="summary-card">
+                <h3>Total Combined Spend</h3>
+                <div className="value">${data.summary.total_spend.toLocaleString()}</div>
+              </div>
+              <div className="summary-card">
+                <h3>Blended ROAS</h3>
+                <div className="value">{data.summary.avg_roas.toFixed(2)}x</div>
+              </div>
+              <div className="summary-card">
+                <h3>Total Conversions</h3>
+                <div className="value">{data.summary.total_leads.toLocaleString()}</div>
+              </div>
+            </div>
+          )}
+
+          <div className="dashboard">
+            {/* RED */}
+            <div className="card red">
+              <div className="card-header">
+                <div className="icon-wrapper">!</div>
+                <div>
+                  <h2>Stop Leakage</h2>
+                  <p className="subtitle" style={{ fontSize: '0.85rem' }}>Critical Issues</p>
+                </div>
+              </div>
+              {data.red.map((item, idx) => (
+                <div key={idx} className="insight-item">
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                  {item.tip && <div className="tip" style={{ borderColor: 'var(--red-neon)', color: 'var(--text-color)' }}><strong style={{ color: 'var(--red-neon)' }}>Senior Buyer's Tip:</strong> {item.tip}</div>}
+                </div>
+              ))}
+              {data.red.length === 0 && <p style={{ color: 'var(--text-muted)' }}>No critical issues detected.</p>}
+            </div>
+
+            {/* YELLOW */}
+            <div className="card yellow">
+              <div className="card-header">
+                <div className="icon-wrapper">⚠</div>
+                <div>
+                  <h2>Optimize</h2>
+                  <p className="subtitle" style={{ fontSize: '0.85rem' }}>Warnings</p>
+                </div>
+              </div>
+              {data.yellow.map((item, idx) => (
+                <div key={idx} className="insight-item">
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                  {item.tip && <div className="tip" style={{ borderColor: 'var(--yellow-neon)', color: 'var(--text-color)' }}><strong style={{ color: 'var(--yellow-neon)' }}>Senior Buyer's Tip:</strong> {item.tip}</div>}
+                </div>
+              ))}
+              {data.yellow.length === 0 && <p style={{ color: 'var(--text-muted)' }}>No optimization warnings detected.</p>}
+            </div>
+
+            {/* GREEN */}
+            <div className="card green">
+              <div className="card-header">
+                <div className="icon-wrapper">↑</div>
+                <div>
+                  <h2>Scale</h2>
+                  <p className="subtitle" style={{ fontSize: '0.85rem' }}>Winners</p>
+                </div>
+              </div>
+              {data.green.map((item, idx) => (
+                <div key={idx} className="insight-item">
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                  {item.tip && <div className="tip" style={{ borderColor: 'var(--green-neon)', color: 'var(--text-color)' }}><strong style={{ color: 'var(--green-neon)' }}>Senior Buyer's Tip:</strong> {item.tip}</div>}
+                </div>
+              ))}
+              {data.green.length === 0 && <p style={{ color: 'var(--text-muted)' }}>No scale opportunities detected.</p>}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [accounts, setAccounts] = useState([]);
+      const [loadingAccounts, setLoadingAccounts] = useState(true);
+
+      const [currentClient, setCurrentClient] = useState(null); // {name, data}
+      const [showModal, setShowModal] = useState(false);
+
+      const fetchAccounts = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/accounts`);
+          if (res.ok) {
+            const data = await res.json();
+            setAccounts(data.accounts || []);
+          } else {
+            setAccounts([]);
+          }
+        } catch (e) {
+          console.error("Backend not running.");
+          setAccounts([]);
+        } finally {
+          setLoadingAccounts(false);
+        }
+      };
+
+      useEffect(() => {
+        fetchAccounts();
+      }, []);
+
+      const handleSelectClient = async (clientName) => {
+        try {
+          const res = await fetch(`${API_BASE}/audit_report/${encodeURIComponent(clientName)}`);
+          if (res.ok) {
+            const result = await res.json();
+            if (result.status === 'success') {
+              setCurrentClient({ name: clientName, data: result.data });
+            }
+          }
+        } catch (e) {
+          alert("Failed to load audit from database.");
+        }
+      };
+
+      const handleAuditGenerated = (clientName, data) => {
+        setShowModal(false);
+        fetchAccounts();
+        setCurrentClient({ name: clientName, data: data });
+      };
+
+      return (
+        <div>
+          <nav style={{
+            display: 'flex',
+            alignItems: 'center',
+            padding: '1rem 2rem',
+            borderBottom: '1px solid var(--border-color)',
+            background: 'rgba(0,0,0,0.5)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            position: 'fixed',
+            top: 0,
+            width: '100%',
+            zIndex: 1000
+          }}>
+            <img src="logo.webp" alt="Logo" style={{ height: '40px', objectFit: 'contain' }} />
+            <span style={{ marginLeft: '1rem', fontWeight: 'bold', fontSize: '1.2rem', letterSpacing: '1px' }}>Pinnacle Media</span>
+          </nav>
+
+          <div className="container" style={{ marginTop: '80px' }}>
+            <header>
+              <h1 style={{ fontSize: '2.5rem' }}>Pinnacle Media | Ad Account Audit Intelligence</h1>
+              <p className="subtitle">Full-Funnel Cross-Platform Analysis for Scaling Brands</p>
+            </header>
+
+            {!currentClient && (
+              <LandingPage
+                accounts={accounts}
+                loadingAccounts={loadingAccounts}
+                onSelectClient={handleSelectClient}
+                onNewAudit={() => setShowModal(true)}
+              />
+            )}
+
+            {currentClient && (
+              <Dashboard
+                clientName={currentClient.name}
+                data={currentClient.data}
+                onBack={() => setCurrentClient(null)}
+              />
+            )}
+          </div>
+
+          {showModal && (
+            <AdminFormModal
+              onClose={() => setShowModal(false)}
+              onAuditGenerated={handleAuditGenerated}
+            />
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+
+</html>
